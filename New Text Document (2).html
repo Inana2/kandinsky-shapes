@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kandinsky Shapes</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let colors;
+    let shapes = [];
+
+    function setup() {
+      createCanvas(777, 777);
+      background(255);
+
+      // Ορισμός χρωμάτων κοντά σε αυτά του Καντίνσκι
+      colors = [
+        color(0, 105, 148),   // Σκούρο Μπλε: Πνευματικότητα
+        color(255, 233, 0),   // Κίτρινο: Ζωτικότητα
+        color(237, 28, 36),   // Κόκκινο: Πάθος
+        color(34, 177, 76),   // Πράσινο: Ηρεμία
+        color(163, 73, 164)   // Μωβ: Μυστήριο
+      ];
+    }
+
+    function draw() {
+      background(255, 255, 255, 20); // Ελαφρώς διαφανές φόντο για αίσθηση κίνησης
+
+      for (let i = shapes.length - 1; i >= 0; i--) {
+        shapes[i].update();
+        shapes[i].display();
+        shapes[i].fadeOut();
+
+        if (shapes[i].alpha <= 0) {
+          shapes.splice(i, 1);
+        }
+      }
+    }
+
+    function mouseDragged() {
+      let newShape = new KandinskyShape(mouseX, mouseY);
+      shapes.push(newShape);
+    }
+
+    class KandinskyShape {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = random(20, 100);
+        this.col = random(colors);
+        this.type = random(['circle', 'rectangle', 'triangle', 'line', 'arc']);
+        this.rotation = random(TWO_PI);
+        this.rotationSpeed = random(-0.01, 0.01); 
+        this.growth = random(0.2, 0.5); 
+        this.alpha = 255;
+      }
+
+      update() {
+        this.rotation += this.rotationSpeed;
+        this.size += this.growth;
+        if (this.size > 200 || this.size < 20) {
+          this.growth *= -1;
+        }
+      }
+
+      display() {
+        push();
+        translate(this.x, this.y);
+        rotate(this.rotation);
+        fill(this.col.levels[0], this.col.levels[1], this.col.levels[2], this.alpha);
+        stroke(this.col.levels[0], this.col.levels[1], this.col.levels[2], this.alpha);
+        strokeWeight(2);
+
+        switch (this.type) {
+          case 'circle':
+            ellipse(0, 0, this.size);
+            break;
+          case 'rectangle':
+            rect(0, 0, this.size, this.size);
+            break;
+          case 'triangle':
+            let x1 = random(-this.size, this.size);
+            let y1 = random(-this.size, this.size);
+            let x2 = random(-this.size, this.size);
+            let y2 = random(-this.size, this.size);
+            triangle(0, 0, x1, y1, x2, y2);
+            break;
+          case 'line':
+            let xEnd = random(-this.size, this.size);
+            let yEnd = random(-this.size, this.size);
+            line(0, 0, xEnd, yEnd);
+            break;
+          case 'arc':
+            let start = random(TWO_PI);
+            let stop = start + random(PI, TWO_PI);
+            arc(0, 0, this.size, this.size, start, stop);
+            break;
+        }
+        pop();
+      }
+
+      fadeOut() {
+        this.alpha -= 2; // Για σταδιακή εξαφάνιση
+      }
+    }
+
+    function keyPressed() {
+      if (key == ' ') {
+        shapes = [];
+        background(255);
+      }
+    }
+  </script>
+</body>
+</html>
